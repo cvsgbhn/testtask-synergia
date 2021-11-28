@@ -3,8 +3,11 @@ package main
 import (
 	"net/http"
 	"io/ioutil"
+	"math/rand"
 	"time"
 	"fmt"
+	"net"
+	"os"
 )
 
 func CheckUrl(url string, res chan []byte) []byte {
@@ -26,19 +29,45 @@ func CheckUrl(url string, res chan []byte) []byte {
 	return body
 }
 
-func main() {
+func Init() {
+	/* server part */
+	arguments := os.Args
+    if len(arguments) == 1 {
+            fmt.Println("Please provide port number")
+            return
+    }
+
+    PORT := ":" + arguments[1]
+    l, err := net.Listen("tcp", PORT)
+    if err != nil {
+            fmt.Println(err)
+            return
+    }
+    defer l.Close()
+
+    c, err := l.Accept()
+    if err != nil {
+            fmt.Println(err)
+            return
+    }
+	/* --------------------- */
+
 	var c1 = make(chan []byte)
 	var c2 = make(chan []byte)
+	rand.Seed(time.Now().UnixNano())
+	n := 0
 	go func() {
 		for {
-			time.Sleep(time.Second * 1)
+			n = 1 + rand.Intn(2)
+			time.Sleep(time.Second * time.Duration(n))
 			CheckUrl("https://novasite.su/test1.php", c1)
 		}
 	}()
 
 	go func() {
 		for {
-			time.Sleep(time.Second * 3)
+			n = 1 + rand.Intn(2)
+			time.Sleep(time.Second * time.Duration(n))
 			CheckUrl("https://novasite.su/test2.php", c2)
 		}
 	}()
@@ -47,8 +76,14 @@ func main() {
 		select{
 		case res1 := <- c1:
 			fmt.Println("from c1: ", string(res1))
+			c.Write(res1)
 		case res2 := <- c2:
 			fmt.Println("from c2: ", string(res2))
+			c.Write(res2)
 		}
 	}
+}
+
+func main() {
+	Init()
 }
