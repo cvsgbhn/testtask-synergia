@@ -5,32 +5,23 @@ import (
 	"time"
 	"net"
 	"fmt"
-	"os"
 )
 
-func TCPful(chn chan []byte) {
-	arguments := os.Args
-    if len(arguments) == 1 {
-            fmt.Println("Please provide host:port.")
-            return
-    }
-
-    CONNECT := arguments[1]
-    c, err := net.Dial("tcp", CONNECT)
+func Connect() {
+    c, err := net.Dial("tcp", "127.0.0.1:8080")
     if err != nil {
             fmt.Println(err)
             return
     }
 
     for {
-		message, _ := bufio.NewReader(c).ReadString('\n')
+		message, _ := bufio.NewReader(c).ReadString('}')
         fmt.Println("->: ", message)
-		chn <- []byte(message)
 		time.Sleep(time.Second * 1)
     }
 }
 
 func main() {
-	var chn = make(chan []byte)
-	TCPful(chn)
+	//var chn = make(chan []byte)
+	Connect()
 }

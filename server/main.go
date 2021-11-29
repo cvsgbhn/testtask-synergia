@@ -7,7 +7,6 @@ import (
 	"time"
 	"fmt"
 	"net"
-	"os"
 )
 
 func CheckUrl(url string, res chan []byte) []byte {
@@ -30,15 +29,7 @@ func CheckUrl(url string, res chan []byte) []byte {
 }
 
 func Init() {
-	/* server part */
-	arguments := os.Args
-    if len(arguments) == 1 {
-            fmt.Println("Please provide port number")
-            return
-    }
-
-    PORT := ":" + arguments[1]
-    l, err := net.Listen("tcp", PORT)
+    l, err := net.Listen("tcp", ":8080")
     if err != nil {
             fmt.Println(err)
             return
@@ -50,7 +41,6 @@ func Init() {
             fmt.Println(err)
             return
     }
-	/* --------------------- */
 
 	var c1 = make(chan []byte)
 	var c2 = make(chan []byte)
