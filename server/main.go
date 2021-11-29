@@ -12,13 +12,15 @@ import (
 func CheckUrl(url string, res chan []byte) []byte {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		fmt.Println("for a while this is an error handler")
+		fmt.Println(err)
+		return nil
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 
 	if err != nil {
-		fmt.Println("for a while this is an error handler")
+		fmt.Println(err)
+		return nil
 	}
 
 	defer resp.Body.Close()
@@ -28,7 +30,7 @@ func CheckUrl(url string, res chan []byte) []byte {
 	return body
 }
 
-func Init() {
+func Stream() {
     l, err := net.Listen("tcp", ":8080")
     if err != nil {
             fmt.Println(err)
@@ -75,5 +77,5 @@ func Init() {
 }
 
 func main() {
-	Init()
+	Stream()
 }

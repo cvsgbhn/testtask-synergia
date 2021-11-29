@@ -1,13 +1,13 @@
 package main
 
 import (
+	"net/http"
 	"bufio"
-	"time"
 	"net"
 	"fmt"
 )
 
-func Connect() {
+func StreamConnect(chn chan string) {
     c, err := net.Dial("tcp", "127.0.0.1:8080")
     if err != nil {
             fmt.Println(err)
@@ -16,12 +16,29 @@ func Connect() {
 
     for {
 		message, _ := bufio.NewReader(c).ReadString('}')
-        fmt.Println("->: ", message)
-		time.Sleep(time.Second * 1)
+		chn <- message
     }
 }
 
+func SetupListening() {
+	var chn = make(chan string)
+	go func() {
+		StreamConnect(chn)
+	}()
+	for {
+		lastResult := <- chn
+		fmt.Println(lastResult)
+	}
+}
+
+func GetAction(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("GET")
+}
+
 func main() {
-	//var chn = make(chan []byte)
-	Connect()
+	go SetupListening()
+
+	http.HandleFunc("/", GetAction)
+
+    http.ListenAndServe(":8081", nil)
 }
